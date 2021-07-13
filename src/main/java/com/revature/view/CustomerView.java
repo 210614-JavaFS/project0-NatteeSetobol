@@ -47,11 +47,15 @@ public class CustomerView extends View {
 					customerController.inputCity(user);
 					System.out.println("Please tell us the state you live in:");
 					customerController.inputState(user);
+					
+					System.out.println("Please tell us your zipcode:");
+					customerController.inputZipcode(user);
+
 					System.out.println("Please tell us your Phone number: ");
 					customerController.getPhoneNumber(user);
 					System.out.println("Please tell us your E-Mail: ");
 					customerController.getEmail(user);
-					customerController.submit(user);
+					user = customerController.submit(user);
 				} else {
 					int userChoice = 0;
 					System.out.println("");
@@ -158,6 +162,10 @@ public class CustomerView extends View {
 							if (customerController.checkChoice(accountChoice, 0,accountInformationArray.size()))
 							{
 								AccountInformation  accountInformation = accountInformationArray.get(accountChoice-1);
+								System.out.println("");
+								System.out.println("How much you want to deposit?");
+							    System.out.println("");
+	
 								totalTransfered = customerController.despositToAccount(user,accountInformation);
 							}
 							

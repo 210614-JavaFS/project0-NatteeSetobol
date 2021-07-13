@@ -8,6 +8,7 @@ public class Customer {
 	private String address;
 	private String city;
 	private String state;
+	private String zipcode;
 	private String phoneNumber;
 	private String email;
 	private String dateOfBirth;
@@ -79,5 +80,11 @@ public class Customer {
 	}
 	public void setLast(String last) {
 		this.last = last;
+	}
+	public String getZipcode() {
+		return zipcode;
+	}
+	public void setZipcode(String zipcode) {
+		this.zipcode = zipcode;
 	}
 }

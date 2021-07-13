@@ -9,46 +9,28 @@ import com.revature.Database;
 import com.revature.model.AccountInformation;
 import com.revature.model.Customer;
 import com.revature.model.User;
+import com.revature.repos.AccountDaoImp;
+import com.revature.repos.CustomerDaoImp;
+import com.revature.repos.UserDaoImp;
 
 public class CustomerController {
 
+	private AccountDaoImp accountDaoImp = null;
+	private CustomerDaoImp customerDaoImp = null;
+	
 	private static Scanner scan = new Scanner(System.in);
 	Customer customer = null;
-	private Database database;
 	
 	public CustomerController()
 	{
-		try {
-			database = Database.getInstance();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		accountDaoImp = new AccountDaoImp();
+		customerDaoImp = new CustomerDaoImp();
 	}
 
 	public boolean isNewUser(User user) {
-		//TODO():
-		//Look up customers in the customer table
-		//if customers.getIsNew() == true then return true
-		// else return fasle
-		boolean result = true;
-		ResultSet resultSet = database.ExecuteStatement("select userid from public.customer");
+		boolean result = false;
 		
-		try {
-			while (resultSet.next())
-			{
-				int customerID = resultSet.getInt("userid");
-				if (customerID == user.getID())
-				{
-					result = false;
-					break;
-				}
-			}
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		result = customerDaoImp.isNewUser(user);
 		
 		return result;
 	}
@@ -69,9 +51,8 @@ public class CustomerController {
 	public void inputFirstName(User user) {
 		customer = new Customer();
 
-		// TODO Auto-generated method stub
-		 customer.setID(FindCustomerId(user));
-		 customer.setFirst(scan.nextLine());
+		customer.setID(FindCustomerId(user));
+		customer.setFirst(scan.nextLine());
 	}
 
 
@@ -114,28 +95,15 @@ public class CustomerController {
 	}
 
 
-	public void submit(User user) 
+	public User submit(User user) 
 	{
-		//if (customer != null)
-		{
-			UserController userController = new UserController();
-			userController.Register(user);
-			
-			ResultSet resultSet = database.ExecuteStatement("insert into public.customer VALUES( (select count(id)+1 from public.customer)," +
-																								"" + user.getID() + "," +
-																								"'" + customer.getFirst() + "'," +
-																								"'"	+ customer.getLast() +  "'," + 
-																								"'"	+ customer.getAddress() +  "'," + 
-																								"'"	+ customer.getCity() +  "'," + 
-																								"'"	+ customer.getState() +  "'," + 
-																								"'"	+ customer.getPhoneNumber() +  "'," + 
-																								"'"	+ customer.getEmail() +  "'" + 
-																								"'"	+ customer.getDateOfBirth() +  "'" +
-					");");
-			
-			
-			
-		}
+		User newUser = null;
+		UserController userController = new UserController();
+		
+		newUser = userController.Register(user);
+		customerDaoImp.addCustomer(newUser, customer);
+	
+		return newUser;
 	}
 
 	public int getUserChoice() {
@@ -146,9 +114,18 @@ public class CustomerController {
 		result = scan.nextInt();
 		return result;
 	}
+	
+	public float getUserChoicefloat() {
+		
+		float result = 0;
+		
+		System.out.print("> ");
+		result = scan.nextFloat();
+		return result;
+	}
+
 
 	public User openAccount(User user, int userAccountChoice) {
-		
 		String userAccountChoiceInString = null;
 		if (userAccountChoice == 1)
 		{
@@ -156,42 +133,13 @@ public class CustomerController {
 		} else {
 			userAccountChoiceInString = "Saving";
 		}
-		database.ExecuteStatement("insert into public.account (uid,type,number,approved,balance) VALUES("
-				+ user.getID() + 
-				",'" + userAccountChoiceInString + "'," 
-				+ 12345 + 
-				",false,0.00"
-				+ ")");
+		user = accountDaoImp.openAccount(user, userAccountChoiceInString);
 		return user;
 	}
 
 	public ArrayList<AccountInformation>getAccounts(User user) {
-		int userId = 0;
-		ResultSet resultSet = database.ExecuteStatement("select * from public.account");
-		ArrayList<AccountInformation> accounts = new ArrayList<AccountInformation>();
-		try {
-			while (resultSet.next())
-			{
-				userId = resultSet.getInt("uid");
-				if (userId == user.getID())
-				{
-					AccountInformation accountToAdd = new AccountInformation();
-					accountToAdd.setId(resultSet.getInt("id"));
-					accountToAdd.setAccounttype(resultSet.getString("type"));
-					accountToAdd.setBalance(resultSet.getFloat("balance"));
-					accountToAdd.setNumber(resultSet.getInt("number"));
-					accountToAdd.setApproved(resultSet.getBoolean("approved"));
-					accountToAdd.setUid(resultSet.getInt("uid"));
-					accounts.add(accountToAdd);
-				}
-				
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
-		return accounts;
+		return accountDaoImp.getAccountById(user);
 	}
 
 	public boolean checkChoice(int accountChoice, int minChoice, int maxChoice) {
@@ -205,25 +153,7 @@ public class CustomerController {
 
 	public float getBalance(User user, AccountInformation accountInformation) 
 	{
-		float result = 0.00f;
-		ResultSet resultSet = database.ExecuteStatement("select * from public.account");
-		
-		try {
-			while (resultSet.next())
-			{
-				int userId = resultSet.getInt("uid");
-				int accountNumber = resultSet.getInt("number");
-				
-				if (userId == user.getID() && accountNumber == accountInformation.getNumber())
-				{
-					result = resultSet.getFloat("balance");
-				}
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return result;
+		return accountDaoImp.getBalance(user, accountInformation);
 	}
 
 	public float withDrawlFromAccount(User user, AccountInformation accountInformation) 
@@ -256,17 +186,8 @@ public class CustomerController {
 	private boolean withDraw(User user, AccountInformation accountInformation, float amountToWithDraw) 
 	{
 		boolean result = false;
-		float currentBalance = 0.00f;
 		
-		currentBalance = getBalance(user,accountInformation);
-		
-		currentBalance -= amountToWithDraw;
-		try {
-			database.ExecuteStatement("update account set balance = " + currentBalance + " where uid=" + user.getID());
-		} catch(Exception e) {
-			
-		}
-		return result;
+		return accountDaoImp.withDraw(user, accountInformation, amountToWithDraw);
 	}
 
 	public float despositToAccount(User user, AccountInformation accountInformation) {
@@ -275,8 +196,6 @@ public class CustomerController {
 		
 		currentBalance = getBalance(user,accountInformation);
 		
-
-		
 		System.out.print("> ");
 		depositAmount = scan.nextFloat();
 		
@@ -284,7 +203,8 @@ public class CustomerController {
 		{
 			
 			currentBalance += depositAmount;
-			database.ExecuteStatement("update account set balance = " + currentBalance + " where uid=" + user.getID());
+			accountDaoImp.DepositToAccount(currentBalance, user.getID());
+			
 		} else {
 			depositAmount = 0.00f;
 		}
@@ -302,7 +222,7 @@ public class CustomerController {
 		
 		if (currentBalance > 0)
 		{
-			if (result > 0 &&  result < currentBalance)
+			if (result > 0 &&  result <= currentBalance)
 			{
 				
 			} else {
@@ -325,30 +245,10 @@ public class CustomerController {
 		
 		if (result > 0)
 		{
-			resultSet = database.ExecuteStatement("select * from public.account");
-			try {
-				boolean found = false;
-				while(resultSet.next())
-				{
-					if (resultSet.getInt("number") == result)
-					{
-						found = true;
-						break;
-					}
-				}
-				
-				if (found == false)
-				{
-					result = 0;
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
+			result = accountDaoImp.doesAccountExist(result);
+			
 		}
 		
-	
 		return result;
 	}
 
@@ -362,34 +262,19 @@ public class CustomerController {
 		currentBalance = getBalance(user,accountInformation);
 		
 		newBalance = currentBalance - transferAmount;
-		if (newBalance > 0)
+		if (newBalance >= 0)
 		{
-			ResultSet resultSet =  null;
-			resultSet = database.ExecuteStatement("select * from public.account");
-			
-			try {
-				while (resultSet.next())
-				{
-					if (resultSet.getInt("number") == accountNumber)
-					{
-						float balance = resultSet.getFloat("balance");
-						ResultSet newSet = null;
-						ResultSet oldSet = null;
-						
-						balance += transferAmount;
-						newSet = database.ExecuteStatement("update public.account set balance = "  + balance + " where number=" + accountNumber);
-						oldSet = database.ExecuteStatement("update public.account set balance = "  + newBalance + " where uid=" + user.getID());
-						
-						transfered = transferAmount;
-					}
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
+			transfered = accountDaoImp.transferMoney(user, accountInformation , transferAmount,
+					accountNumber, newBalance);
+
 		}
 		return transfered;
+	}
+
+	public void inputZipcode(User user) {
+		// TODO Auto-generated method stub
+		System.out.print("> ");
+		customer.setZipcode(scan.nextLine());
 	}
 
 

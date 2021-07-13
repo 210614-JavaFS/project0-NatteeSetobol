@@ -6,12 +6,21 @@ import java.util.Scanner;
 
 import com.revature.Database;
 import com.revature.model.User;
+import com.revature.repos.UserDaoImp;
 
 public class LoginController {
 
 	private static Scanner scan = new Scanner(System.in);
 
-	public User login(User user) {
+	public User login(User user) 
+	{
+		UserDaoImp userDao = null;
+		User loginUser = null;
+		
+		userDao = new UserDaoImp();
+		
+		loginUser = userDao.Login(user.getUsername(), user.getPassword());
+		/*
 		// TODO:()
 		// 1. Get Username from database and password from database
 		// 2. check if username and password matches.
@@ -49,7 +58,8 @@ public class LoginController {
 			}
 			
 		}
-		return null;
+		*/
+		return loginUser;
 	}
 
 	public User inputUserPassword(User user) {

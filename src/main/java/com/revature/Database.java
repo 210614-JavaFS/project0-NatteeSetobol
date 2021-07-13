@@ -3,6 +3,7 @@ package com.revature;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -10,9 +11,9 @@ import java.sql.Statement;
 public class Database {
 	private static Database instance = null;
 	private Connection connection;
-	private String sqlUrl = "jdbc:postgresql://localhost:5432/Bank";
+	private String sqlUrl = "jdbc:postgresql://sherlock.cf7ywxuuiask.us-east-2.rds.amazonaws.com:5432/bank";
 	private String sqlUser = "postgres";
-	private String sqlPassword = "12345";
+	private String sqlPassword = "password";
 	
 	public Database() throws SQLException
 	{
@@ -22,6 +23,11 @@ public class Database {
 		{
 			System.err.println(ex.getMessage());
 		}
+	}
+	
+	public Connection getConnection()
+	{
+		return connection;
 	}
 	
 	public ResultSet ExecuteStatement(String queryString)

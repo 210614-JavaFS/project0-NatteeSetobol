@@ -22,7 +22,7 @@ public class AdminView extends View{
 		int menuItem = 0;
 		ArrayList<HashMap<String, Object>> userToApprove = null;
 		
-		while (menuItem != 2)
+		while (menuItem != 4)
 		{
 			
 			boolean isInMenu = false;
@@ -123,6 +123,12 @@ public class AdminView extends View{
 						menuItem = 0;
 					}
 					
+					isInMenu = true;
+					break;
+				}
+				case 4:
+				{
+					user = null;
 					isInMenu = true;
 					break;
 				}
