@@ -126,6 +126,48 @@ public class AdminView extends View{
 					isInMenu = true;
 					break;
 				}
+				case 2:
+				{
+					int userInput = 0;
+					System.out.println("");
+					System.out.println("What do you want to do?:");
+					System.out.println("1. Withdraw from an account");
+					System.out.println("2. Transfer from an account to an account");
+					System.out.println("3. Deposit to an account");
+					System.out.println("4. Cancel an account");
+					System.out.println("");
+					//userInput = adminController.getUserInput();
+					if (userInput > 0)
+					{
+						switch(userInput)
+						{
+							case 1:
+							{
+								int accountNumber = 0;
+								System.out.println("");
+								System.out.println("Please enter the account number you want to withdrawl from:");
+								System.out.println("");
+								//accountNumber = adminController.getUserAccountNumber();
+								
+								if (accountNumber > 0)
+								{
+									int withdrawlAmount = 0;
+									System.out.println("");
+									System.out.println("How much do you want to with draw from this account.");
+									System.out.println("");
+									//withdrawlAmount = adminController.withDrawAmount;
+								}
+								break;
+							}
+							case 2:
+							{
+								break;
+							}
+						}
+					
+					}
+					break;
+				}
 				case 4:
 				{
 					user = null;

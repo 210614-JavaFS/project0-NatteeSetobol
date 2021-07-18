@@ -133,6 +133,7 @@ public class UserDaoImp implements UserDao {
 		stringQuery = "select * from public.users where username = ? and password = ?";
 		
 		try {
+			database = Database.getInstance();
 			statement = database.getConnection().prepareStatement(stringQuery);
 			statement.setString(1, username);
 			statement.setString(2, password);

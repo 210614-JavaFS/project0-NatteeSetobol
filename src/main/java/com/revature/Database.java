@@ -10,19 +10,14 @@ import java.sql.Statement;
 
 public class Database {
 	private static Database instance = null;
-	private Connection connection;
-	private String sqlUrl = "jdbc:postgresql://sherlock.cf7ywxuuiask.us-east-2.rds.amazonaws.com:5432/bank";
-	private String sqlUser = "postgres";
-	private String sqlPassword = "password";
+	private static Connection connection;
+	private static String sqlUrl = "jdbc:postgresql://sherlock.cf7ywxuuiask.us-east-2.rds.amazonaws.com:5432/bank";
+	private static String sqlUser = "postgres";
+	private static String sqlPassword = "password";
 	
 	public Database() throws SQLException
 	{
-		try {
-			connection = DriverManager.getConnection(sqlUrl,sqlUser,sqlPassword);
-		} catch (SQLException ex)
-		{
-			System.err.println(ex.getMessage());
-		}
+
 	}
 	
 	public Connection getConnection()
@@ -38,13 +33,13 @@ public class Database {
 			statement = connection.createStatement();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		 try {
 			result = statement.executeQuery(queryString);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+		//	e.printStackTrace();
 		}	
 		
 		 return result;
@@ -55,6 +50,13 @@ public class Database {
 		if (instance == null)
 		{
 			instance = new Database();
+			try {
+				Class.forName("org.postgresql.Driver");
+				connection = DriverManager.getConnection(sqlUrl,sqlUser,sqlPassword);
+			} catch (Exception ex)
+			{
+				System.err.println(ex.getMessage());
+			}
 		}
 		
 		return instance;
